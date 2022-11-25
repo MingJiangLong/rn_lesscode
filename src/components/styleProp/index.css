@@ -14,5 +14,5 @@
 }
 
 .styleProp-input {
-    min-width: 50%;
+    flex: 1;
 }

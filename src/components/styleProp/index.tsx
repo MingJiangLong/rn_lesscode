@@ -28,6 +28,8 @@ export default function StyleProp(props: {
     const [form2] = Form.useForm();
 
     useEffect(() => {
+
+        // TODO:当props变化会修改 编辑模式,可以遍历查找修改状态
         const state = Object.keys(props.style).reduce((item, current) => {
             return {
                 ...item,

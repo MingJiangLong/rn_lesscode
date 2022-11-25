@@ -1,6 +1,6 @@
 import React from "react";
 import { I_DispathType } from "../modules/I_DispathType";
-import I_Nodes from "../modules/I_Nodes";
+import I_Node from "../modules/I_Node";
 import { I_PhoneState } from "../modules/I_PhoneState";
 import { RNImage, RNText, RNTextInput, RNView } from "./constance";
 /**
@@ -9,34 +9,21 @@ import { RNImage, RNText, RNTextInput, RNView } from "./constance";
 export const initState: I_PhoneState = {
     store: {
         clickInfo: {
-            /** 当为模拟器渲染组件时需要 */
             id: "",
-            parentID: '',
             reactNativeType: '',
             reactType: '',
-            /**
-             * 用于寻找子节点
-             */
-            sons: [],
             props: {},
         },
         draggedNode: {
             id: '',
-            parentID: '',
             reactNativeType: '',
             reactType: '',
-            /**
-             * 用于寻找子节点
-             */
-            sons: [],
             props: {}
         },
         phoneRenderJson: {
-            id: "PHONE_0",
-            parentID: '',
+            id: "$$0$$",
             reactNativeType: RNView,
             reactType: 'div',
-            sons: [],
             props: {
                 style: {
                     width: '375px',
@@ -76,8 +63,8 @@ export const initState: I_PhoneState = {
                         height: '20px',
                         background: 'purple'
                     },
-                    children: "hello,world"
                 },
+                children: 'hello,world'
             },
             {
                 id: '__Image__',
@@ -167,7 +154,7 @@ export const initState: I_PhoneState = {
         ],
     },
 
-    dispatch<T extends I_Nodes>(type: I_DispathType, value: T | T[]) {
+    dispatch<T extends I_Node>(type: I_DispathType, value: T | T[]) {
 
     },
 }

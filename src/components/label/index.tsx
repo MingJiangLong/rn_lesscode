@@ -1,6 +1,6 @@
-import { CSSProperties, PropsWithChildren, useContext } from 'react'
+import { useContext } from 'react'
 import { GLOBAL } from '../../App';
-import I_Nodes from '../../modules/I_Nodes';
+import I_Node from '../../modules/I_Node';
 import './index.css';
 export default function Label(props: LabelProps) {
 
@@ -18,7 +18,11 @@ export default function Label(props: LabelProps) {
             id: '',
             reactNativeType: '',
             reactType: '',
-            props: {}
+            props: {},
+            parentId: '',
+            children: [],
+            leftSablingId: '',
+            rightSablingId: '',
         })
     }
 
@@ -35,10 +39,9 @@ export default function Label(props: LabelProps) {
             className='label_container'
             onClick={onLabelClick}
             onDragStart={onDragStart}
-
             onDragEnd={onDragEnd}
         >{props.name}</div>
     )
 }
 
-type LabelProps = PropsWithChildren<I_Nodes>
+type LabelProps = I_Node

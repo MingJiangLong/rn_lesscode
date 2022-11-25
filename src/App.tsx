@@ -6,7 +6,7 @@ import Phone from './components/phone';
 import RNPageTemplate from './config/RNPageTemplate';
 import { initState } from './config/StoreConfig';
 import { I_DispathType } from './modules/I_DispathType';
-import I_Nodes from './modules/I_Nodes';
+import I_Node from './modules/I_Node';
 export const GLOBAL = createContext(initState)
 /**
  * APP 主页面
@@ -24,7 +24,7 @@ function App() {
 
   const [initBaseComponents, setInitBaseComponents] = useState(initState.store.initBaseComponents)
 
-  function dispatch<T extends I_Nodes>(type: I_DispathType, value: T | T[]) {
+  function dispatch<T extends I_Node>(type: I_DispathType, value: T | T[]) {
     const map: any = {
       setDraggedNode,
       setPhoneRenderJson,
@@ -37,7 +37,7 @@ function App() {
     }
   }
 
-  function exportRNPage(data: I_Nodes) {
+  function exportRNPage(data: I_Node) {
 
   }
   // TODO:点击app页面需要区分id清空clickInfo

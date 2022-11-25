@@ -5,10 +5,11 @@ import "../../App.css"
 import StyleProp from "../styleProp";
 import { Input } from 'antd';
 import { isBaseComponent, isPhoneRenderComponent } from "../../util/is";
+import Children from "../children";
 export default function Info() {
     const { store: {
         clickInfo,
-        clickInfo: { props: defaultProps, id: storedclickElementId },
+        clickInfo: { props: defaultProps, id: storedclickElementId, children },
         initBaseComponents,
         phoneRenderJson
     }, dispatch } = useContext(GLOBAL)
@@ -60,47 +61,54 @@ export default function Info() {
     }
 
     const render = useMemo(() => {
-        if (!defaultProps) return void 0;
-        return Object.keys(defaultProps).map((key, index) => {
-            const map = {
-                style: (
-                    <Fragment key={index}>
-                        {
-                            renderStyleProps(defaultProps.style as CSSProperties, storedclickElementId)
-                        }
-                    </Fragment>
-                ),
-            }
-            if (key === 'style') {
-                return (
-                    <Fragment key={index}>
-                        {
-                            renderStyleProps(defaultProps.style as CSSProperties, storedclickElementId)
-                        }
-                    </Fragment>
-                )
-            }
-            return (
-                <div
-                    key={index}
-                    style={{ display: 'flex', flexDirection: 'row', margin: '10px' }}
-                >
-                    <div style={{ minWidth: "20%" }}>{key}:</div>
-                    {/* @ts-ignore */}
-                    <Input
-                        value={defaultProps[key]}
-                        onChange={(e: any) => {
-                            onTextChange(e, key)
-                        }}
-                    />
+        return (
+            <div>
+                <div>
+                    {
+
+                        isBaseComponent(clickInfo.id) ? "基础组件" : isPhoneRenderComponent(clickInfo.id) ? "模拟器UI" : ""
+                    }
                 </div>
-            )
-        })
+                <div className="App-subtitle">Props</div>
+                {
+                    Object.keys(defaultProps).map((key, index) => {
+                        if (key === 'style') {
+                            return (
+                                <Fragment key={index}>
+                                    {
+                                        renderStyleProps(defaultProps.style as CSSProperties, storedclickElementId)
+                                    }
+                                </Fragment>
+                            )
+                        }
+
+                        return (
+                            <div
+                                key={index}
+                                style={{ display: 'flex', flexDirection: 'row', margin: '10px' }}
+                            >
+                                <div style={{ minWidth: "20%" }}>{key}:</div>
+                                {/* @ts-ignore */}
+                                <Input
+                                    value={defaultProps[key]}
+                                    onChange={(e: any) => {
+                                        onTextChange(e, key)
+                                    }}
+                                />
+                            </div>
+                        )
+                    })
+                }
+                <div className="App-subtitle">Children</div>
+                <Children />
+            </div>
+        )
+
     }, [clickInfo])
     return (
         <div style={{ margin: '20px' }}>
-            <div className="App-title">信息展示</div>
-            <div className="App-subtitle">Props</div>
+            <div className="App-title">点击信息展示</div>
+
             <div>
                 {render}
             </div>

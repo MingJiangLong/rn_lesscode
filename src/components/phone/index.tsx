@@ -1,11 +1,13 @@
 import React, { Fragment, ReactNode, useContext, useMemo, useRef, useState } from 'react';
 import { GLOBAL } from '../../App';
-import I_Nodes from '../../modules/I_Nodes';
-import { findTarget } from '../../util';
+import { RNText } from '../../config/constance';
+import I_Node from '../../modules/I_Node';
+import { findTarget, isNode } from '../../util';
+import { isPhoneRenderComponent } from '../../util/is';
 import './index.css';
 export default function Phone() {
 
-    const { store: { draggedNode, phoneRenderJson, initBaseComponents }, dispatch } = useContext(GLOBAL)
+    const { store: { draggedNode, phoneRenderJson, initBaseComponents, clickInfo }, dispatch } = useContext(GLOBAL)
 
     const primaryKey = useRef(0)
 
@@ -16,26 +18,39 @@ export default function Phone() {
     function onDrop(e: React.DragEvent<HTMLDivElement>) {
         const htmlElement = e.target as HTMLElement;
         const id = htmlElement.dataset.id as string
-        let find = findTarget(id, phoneRenderJson as I_Nodes);
+        let find = findTarget(id, phoneRenderJson as I_Node);
         if (!find) return
         primaryKey.current += 1;
-        if (!Array.isArray(find.sons)) {
-            find.sons = []
+
+        if (!Array.isArray(find.children)) {
+            if (!find.children) {
+                find.children = []
+            } else {
+                find.children = [find.children]
+            }
         }
-        find.sons.push({
+
+        find.children.push({
             id: `$$${primaryKey.current}$$`,
             props: {
                 ...draggedNode.props
             },
-            parentID: find.id,
             reactNativeType: draggedNode.reactNativeType,
             reactType: draggedNode.reactType,
-            sons: []
+            children: draggedNode.children
         })
 
+        // 此时如果点击信息是模拟器需要同步点击信息
+        if (isPhoneRenderComponent(clickInfo.id)) {
+            const find = findTarget(clickInfo.id, phoneRenderJson)
+            if (find) {
+                dispatch("setClickInfo", find)
+            }
+        }
         dispatch('setPhoneRenderJson', {
             ...phoneRenderJson
         })
+
 
     }
 
@@ -44,50 +59,42 @@ export default function Phone() {
         e.preventDefault();
     }
 
-    function onPhoneElementClick(props: I_Nodes) {
+    function onPhoneElementClick(props: I_Node) {
         dispatch("setClickInfo", { ...props })
     }
 
-    function parseRenderJson(data: I_Nodes, parentType?: string): ReactNode {
+    function parseRenderJson(data: I_Node, parentType?: string): ReactNode {
+
         // 需要把一些属性和react native同步
         const props = data.props;
-        const sons = data.sons;
-        const reactType = data.reactType
-        // 如果父级是text children不能再使用div 改用span 才可以嵌套
-        // if(parentType==='Text')
-        return React.createElement(reactType, {
+        const children = data.children;
+        const reactType = data.reactType;
+        const reactNativeType = data.reactNativeType;
+
+        const realChildren = Array.isArray(children) ? children : !children ? [] : [children]
+
+        /**处理嵌套text */
+        const realReactType = parentType != RNText && reactNativeType == RNText ? 'div' : reactType
+
+        return React.createElement(realReactType, {
             ...props,
             onClick(e: any) {
                 e.stopPropagation()
                 onPhoneElementClick(data)
             },
             "data-id": data.id
-        }, sons?.map(item => (
-            <Fragment key={item.id}>
-                {parseRenderJson(item, reactType)}
-            </Fragment>
-        )))
-        // return (
-        //     <div
-        //         {...props}
-        //         key={data.id}
-        //         // 用于点击模拟器显示点击信息
-        //         onClick={(e) => {
-        //             e.stopPropagation()
-        //             onPhoneElementClick(data)
-        //         }}
-        //         // 用于onDrop寻找落点
-        //         data-id={data.id}
-        //     >
-        //         {
-        //             (sons || []).map((item, index) => (
-        //                 <Fragment key={item.id}>
-        //                     {parseRenderJson(item, type === 'Text' ? 'Text' : undefined)}
-        //                 </Fragment>
-        //             ))
-        //         }
-        //     </div>
-        // )
+        }, realChildren.map(item => {
+            if (isNode(item)) {
+                return (
+                    <Fragment key={item.id}>
+                        {parseRenderJson(item, reactNativeType)}
+                    </Fragment>
+                )
+            }
+
+            return item
+
+        }))
     }
     const children = useMemo(() => {
         return parseRenderJson(phoneRenderJson as any);
